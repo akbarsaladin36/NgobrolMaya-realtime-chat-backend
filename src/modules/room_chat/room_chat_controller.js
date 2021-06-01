@@ -1,14 +1,46 @@
 const helper = require('../../helpers/wrapper')
 const roomChatModel = require('../room_chat/room_chat_model')
+const contactModel = require('../contact/contact_model')
 
 module.exports = {
   createRoomChat: async (req, res) => {
     try {
-      const { roomChat } = req.body
+      const { userId, friendId } = req.body
+
+      const checkUserRoom = await contactModel.getOneContactData(
+        userId,
+        friendId
+      )
+      const checkFriendRoom = await contactModel.getOneContactData(
+        friendId,
+        userId
+      )
+
+      if (checkUserRoom.length > 0 || checkFriendRoom.length > 0) {
+        return helper.response(
+          res,
+          400,
+          'the room has been added by someone.',
+          null
+        )
+      }
+
+      const roomChat = Math.floor(Math.random() * 10000 + 1)
+
       const setData = {
+        user_id: friendId,
+        friend_id: userId,
         room_chat: roomChat
       }
-      const result = await roomChatModel.createRoomChatData(setData)
+
+      const setData2 = {
+        user_id: userId,
+        friend_id: friendId,
+        room_chat: roomChat
+      }
+
+      let result = await roomChatModel.createRoomChatData(setData)
+      result = await roomChatModel.createRoomChatData(setData2)
       return helper.response(
         res,
         200,
@@ -21,7 +53,17 @@ module.exports = {
   },
   getAllRoomChat: async (req, res) => {
     try {
-      const result = await roomChatModel.getAllRoomChatData()
+      const { id } = req.params
+      const result = await roomChatModel.getOneRoomChatDataById(id)
+
+      for (const friend of result) {
+        friend.friendDetail = await contactModel.getOneContactData(
+          friend.friend_id
+        )
+        friend.sampleChat = await roomChatModel.getSampleChatRoomDataById(
+          friend.room_chat
+        )
+      }
       return helper.response(
         res,
         200,

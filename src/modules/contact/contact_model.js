@@ -1,26 +1,33 @@
 const connection = require('../../config/mysql')
 
 module.exports = {
-  addFriendContact: (id) => {
+  addFriendContact: (setData) => {
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO contact SET ?', id, (error, result) => {
-        console.log(error)
-        if (!error) {
-          const newResult = {
-            id: id
+      connection.query(
+        'INSERT INTO contact SET ?',
+        setData,
+        (error, result) => {
+          console.log(error)
+          console.log(result)
+          if (!error) {
+            const newResult = {
+              id: result.insertId,
+              ...setData
+            }
+            resolve(newResult)
+          } else {
+            reject(new Error(error))
           }
-          resolve(newResult)
-        } else {
-          reject(new Error(error))
         }
-      })
+      )
     })
   },
 
-  getAllContactData: () => {
+  getAllContactDataById: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM contact JOIN users ON contact.contact_friend_id = users.user_id',
+        'SELECT * FROM contact WHERE contact_user_id=?',
+        id,
         (error, result) => {
           // console.log(error)
           if (!error) {
@@ -33,11 +40,29 @@ module.exports = {
     })
   },
 
-  deleteOneContact: (id) => {
+  getOneContactData: (userId, friendId) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'DELETE FROM contact WHERE contact_friend_id=?',
-        id,
+        'SELECT * FROM contact WHERE contact_user_id=? AND contact_friend_id=?',
+        [userId, friendId],
+        (error, result) => {
+          if (!error) {
+            resolve(result)
+          } else {
+            reject(new Error(error))
+          }
+          // console.log(result)
+          // console.log(error)
+        }
+      )
+    })
+  },
+
+  deleteOneContact: (userId, id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'DELETE FROM contact WHERE contact_user_id=? AND contact_friend_id=?',
+        [userId, id],
         (error, result) => {
           if (!error) {
             resolve(result)

@@ -17,15 +17,19 @@ module.exports = {
       })
     })
   },
-  getAllMessage: () => {
+  getAllMessageByRoomId: (id) => {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM chat', (error, result) => {
-        if (!error) {
-          resolve(result)
-        } else {
-          reject(new Error(error))
+      connection.query(
+        'SELECT * FROM chat WHERE room_chat=?',
+        id,
+        (error, result) => {
+          if (!error) {
+            resolve(result)
+          } else {
+            reject(new Error(error))
+          }
         }
-      })
+      )
     })
   }
 }

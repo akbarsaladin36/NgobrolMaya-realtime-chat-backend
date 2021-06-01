@@ -14,9 +14,10 @@ module.exports = {
       return helper.response(res, 404, 'Bad Request', null)
     }
   },
-  getAllChatMessage: async (req, res) => {
+  getOneChatMessage: async (req, res) => {
     try {
-      const result = await chatModel.getAllMessage()
+      const { id } = req.params
+      const result = await chatModel.getAllMessageByRoomId(id)
       return helper.response(
         res,
         200,

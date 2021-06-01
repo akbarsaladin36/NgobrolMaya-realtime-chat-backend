@@ -52,6 +52,8 @@ module.exports = {
         'UPDATE users SET ? WHERE user_id=?',
         [data, id],
         (error, result) => {
+          console.log(error)
+          console.log(result)
           if (!error) {
             const newResult = {
               id: id,

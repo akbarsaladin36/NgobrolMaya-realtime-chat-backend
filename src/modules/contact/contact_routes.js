@@ -5,15 +5,21 @@ const contactController = require('./contact_controller')
 const authMiddleware = require('../../middleware/auth')
 
 router.get(
-  '/contact',
+  '/:id',
   authMiddleware.authentication,
   contactController.getAllContact
 )
 
 router.post(
-  '/add-contact/:id',
+  '/add-contact',
   authMiddleware.authentication,
   contactController.addFriend
+)
+
+router.delete(
+  '/:id',
+  authMiddleware.authentication,
+  contactController.deleteContact
 )
 
 module.exports = router
