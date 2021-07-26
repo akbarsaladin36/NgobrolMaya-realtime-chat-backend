@@ -1,17 +1,16 @@
 const helper = require('../../helpers/wrapper')
 const roomChatModel = require('../room_chat/room_chat_model')
-const contactModel = require('../contact/contact_model')
 
 module.exports = {
   createRoomChat: async (req, res) => {
     try {
       const { userId, friendId } = req.body
 
-      const checkUserRoom = await contactModel.getOneContactData(
+      const checkUserRoom = await roomChatModel.getDataByUserIdAndFriendId(
         userId,
         friendId
       )
-      const checkFriendRoom = await contactModel.getOneContactData(
+      const checkFriendRoom = await roomChatModel.getDataByUserIdAndFriendId(
         friendId,
         userId
       )
@@ -54,10 +53,10 @@ module.exports = {
   getAllRoomChat: async (req, res) => {
     try {
       const { id } = req.params
-      const result = await roomChatModel.getOneRoomChatDataById(id)
+      const result = await roomChatModel.getAllRoomChatData(id)
 
       for (const friend of result) {
-        friend.friendDetail = await contactModel.getOneContactData(
+        friend.friendDetail = await roomChatModel.getFriendDataById(
           friend.friend_id
         )
         friend.sampleChat = await roomChatModel.getSampleChatRoomDataById(

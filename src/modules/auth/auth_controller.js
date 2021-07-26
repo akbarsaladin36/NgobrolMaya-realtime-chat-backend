@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const helper = require('../../helpers/wrapper')
-const authModel = require('../auth/auth_model')
+const authModel = require('./auth_model')
 // const nodemailer = require('nodemailer')
 const fs = require('fs')
 require('dotenv').config()
@@ -81,84 +81,6 @@ module.exports = {
       }
     } catch (error) {
       return helper.response(res, 400, 'Bad Request', null)
-    }
-  },
-  getUserProfileById: async (req, res) => {
-    try {
-      const { id } = req.params
-      const result = await authModel.getOneUserProfileData(id)
-      if (result.length > 0) {
-        return helper.response(
-          res,
-          200,
-          `Success get user profile by id ${id}`,
-          result
-        )
-      } else {
-        return helper.response(
-          res,
-          404,
-          'User profile with id is not found.',
-          null
-        )
-      }
-    } catch (error) {
-      return helper.response(res, 404, 'Bad Request', null)
-    }
-  },
-
-  updateUserProfile: async (req, res) => {
-    try {
-      const { id } = req.params
-      const { userEmail, userName, userPhoneNumber, userBio } = req.body
-      const setData = {
-        user_email: userEmail,
-        user_name: userName,
-        user_phone: userPhoneNumber,
-        user_bio: userBio,
-        user_image: req.file ? req.file.filename : '',
-        user_updated_at: new Date(Date.now())
-      }
-      const result = await authModel.getOneUserProfileData(id)
-      if (result.length > 0) {
-        const deleteImage = result[0].user_image
-        const checkIfImageExist = fs.existsSync(`src/uploads/${deleteImage}`)
-        if (checkIfImageExist && deleteImage) {
-          fs.unlink(`src/uploads/${deleteImage}`, async function (err) {
-            if (err) {
-              return helper.response(
-                res,
-                401,
-                'the image cannot deleted.',
-                null
-              )
-            } else {
-              const newResult = await authModel.updateUserProfileData(
-                setData,
-                id
-              )
-              return helper.response(
-                res,
-                200,
-                'The data with id is successfuly updated.',
-                newResult
-              )
-            }
-          })
-        } else {
-          return helper.response(
-            res,
-            401,
-            'the result of data is not found',
-            null
-          )
-        }
-      } else {
-        return helper.response(res, 404, 'the data with id is not found', null)
-      }
-    } catch (error) {
-      console.log(error)
-      return helper.response(res, 404, 'Bad Request', null)
     }
   }
 }

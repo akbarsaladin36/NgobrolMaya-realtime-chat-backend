@@ -1,46 +1,24 @@
 const connection = require('../../config/mysql')
 
 module.exports = {
-  registerUser: (setData) => {
+  getAllUserProfileData: (keywords) => {
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO users SET ?', setData, (error, result) => {
-        console.log(error)
-        if (!error) {
-          const newResult = {
-            id: result.insertId,
-            ...setData
+      connection.query(
+        'SELECT * FROM users WHERE user_email LIKE ?',
+        keywords,
+        (error, result) => {
+          console.log(error)
+          if (!error) {
+            if (result.length === 0) {
+              resolve([{}])
+            } else {
+              resolve(result)
+            }
+          } else {
+            reject(new Error(error))
           }
-          resolve(newResult)
-        } else {
-          reject(new Error(error))
         }
-      })
-    })
-  },
-
-  getUserProfileData: (data) => {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users WHERE ?', data, (error, result) => {
-        console.log(error)
-        if (!error) {
-          resolve(result)
-        } else {
-          reject(new Error(error))
-        }
-      })
-    })
-  },
-
-  getAllUserProfileData: () => {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM users', (error, result) => {
-        console.log(error)
-        if (!error) {
-          resolve(result)
-        } else {
-          reject(new Error(error))
-        }
-      })
+      )
     })
   },
 

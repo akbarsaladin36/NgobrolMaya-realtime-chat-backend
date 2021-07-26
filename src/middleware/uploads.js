@@ -27,7 +27,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: maxSize }
-}).single('profilePicture')
+}).single('imageFile')
 
 const uploadFilter = (req, res, next) => {
   upload(req, res, function (err) {
@@ -39,3 +39,5 @@ const uploadFilter = (req, res, next) => {
     next()
   })
 }
+
+module.exports = uploadFilter

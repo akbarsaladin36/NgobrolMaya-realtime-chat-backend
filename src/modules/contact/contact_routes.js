@@ -17,7 +17,7 @@ router.post(
 )
 
 router.delete(
-  '/:id',
+  '/',
   authMiddleware.authentication,
   contactController.deleteContact
 )

@@ -12,13 +12,6 @@ const socket = require('socket.io')
 
 const app = express()
 const port = process.env.DB_PORT
-const server = require('http').createServer(app)
-const io = socket(server, {
-  cors: {
-    origin: '*'
-  },
-  path: '/backend3/socket.io'
-})
 
 app.use(morgan('dev'))
 app.use(cors())
@@ -32,6 +25,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/backend3/api/v1', routerNavigation)
 app.use('/backend3/api', express.static('src/uploads'))
+
+const server = require('http').createServer(app)
+const io = socket(server, {
+  cors: {
+    origin: '*'
+  },
+  path: '/backend3/socket.io'
+})
+
+let listUserOnline = []
 
 io.on('connection', (socket) => {
   console.log('new user connected')
@@ -54,20 +57,55 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('chatMessage', data)
   })
 
+  socket.on('connectServer', (userId) => {
+    if (!listUserOnline.includes(userId)) {
+      listUserOnline.push(userId)
+    }
+    io.emit('login', userId)
+    console.log('list user online in this chat: ', listUserOnline)
+  })
+
+  socket.on('disconnectServer', ({ userId, room }) => {
+    listUserOnline = listUserOnline.filter((element) => element !== userId)
+    io.emit('logout', userId)
+    // LEAVE ROOM FOR NOTIF
+    socket.leave(userId)
+    // LEAVE ROOM
+    if (room) {
+      socket.leave(room)
+    }
+  })
+
+  socket.on('checkUserOnline', ({ userId, room }) => {
+    if (listUserOnline.includes(userId)) {
+      io.to(room).emit('isOnline', true)
+    } else {
+      io.to(room).emit('IsOnline', false)
+    }
+  })
+
   socket.on('joinRoom', (data) => {
     console.log(data)
     if (data.oldRoom) {
       socket.leave(data.oldRoom)
     }
-    socket.join(data.room)
-    socket.broadcast.to(data.room).emit('chatMessage', {
-      username: 'BOT',
-      message: `${data.username} joined Chat!`
-    })
+    if (data.room) {
+      socket.join(data.room)
+    }
+    console.log('Is room chat is empty?', socket.room)
   })
 
   socket.on('roomMessage', (data) => {
     io.to(data.room).emit('chatMessage', data)
+  })
+
+  socket.on('notifMessage', (data) => {
+    socket.broadcast.to(data.receiverId).emit('notifMessage', data)
+    console.log('Is room chat is empty?', socket.room)
+  })
+
+  socket.on('typingMessage', (data) => {
+    socket.broadcast.to(data.room).emit('typing-message', data)
   })
 })
 

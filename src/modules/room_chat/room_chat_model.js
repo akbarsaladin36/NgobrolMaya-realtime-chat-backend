@@ -21,21 +21,10 @@ module.exports = {
       )
     })
   },
-  getAllRoomChatData: () => {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM room_chat', (error, result) => {
-        if (!error) {
-          resolve(result)
-        } else {
-          reject(new Error(error))
-        }
-      })
-    })
-  },
-  getOneRoomChatDataById: (id) => {
+  getAllRoomChatData: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM room_chat WHERE user_id=?',
+        'SELECT * FROM room_chat WHERE user_id = ?',
         id,
         (error, result) => {
           if (!error) {
@@ -50,8 +39,38 @@ module.exports = {
   getSampleChatRoomDataById: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT message, created_at FROM chat WHERE room_chat=? ORDER BY created_at ASC LIMIT 1',
+        'SELECT message, created_at FROM chat WHERE room_chat = ? ORDER BY created_at ASC LIMIT 1',
         id,
+        (error, result) => {
+          if (!error) {
+            resolve(result)
+          } else {
+            reject(new Error(error))
+          }
+        }
+      )
+    })
+  },
+  getFriendDataById: (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT * FROM users WHERE user_id = ?',
+        id,
+        (error, result) => {
+          if (!error) {
+            resolve(result[0])
+          } else {
+            reject(new Error(error))
+          }
+        }
+      )
+    })
+  },
+  getDataByUserIdAndFriendId: (userId, friendId) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT * FROM room_chat WHERE user_id = ? AND friend_id = ?',
+        [userId, friendId],
         (error, result) => {
           if (!error) {
             resolve(result)
