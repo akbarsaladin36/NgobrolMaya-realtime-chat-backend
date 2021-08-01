@@ -90,15 +90,11 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('join-room', (data) => {
-    console.log(data)
-    if (data.oldRoom) {
-      socket.leave(data.oldRoom)
+  socket.on('join-room', ({ room, oldRoom }) => {
+    if (oldRoom) {
+      socket.leave(oldRoom)
     }
-    if (data.room) {
-      socket.join(data.room)
-    }
-    console.log('Is room chat is empty?', socket.room)
+    socket.join(room)
   })
 
   socket.on('send-message', (data) => {
