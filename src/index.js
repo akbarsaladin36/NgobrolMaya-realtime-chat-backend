@@ -34,52 +34,24 @@ const io = socket(server, {
   path: '/backend3/socket.io'
 })
 
-let listUsers = []
 let listUserOnline = []
 
 io.on('connection', (socket) => {
   console.log('new user connected')
 
-  // globalMessage = pesan yang dikirimkan ke semua client.
-  socket.on('globalMessage', (data) => {
-    console.log(data)
-    io.emit('chat-message', data)
-  })
-
-  // privateMessage = pesan yang dikirimkan ke satu client saja.
-  socket.on('privateMessage', (data) => {
-    console.log(data)
-    socket.emit('chat-message', data)
-  })
-
-  // broadcastMessage = pesan yang dikirimkan ke seluruh client kecuali si pengirim.
-  socket.on('broadcastMessage', (data) => {
-    console.log(data)
-    socket.broadcast.emit('chat-message', data)
-  })
-
-  socket.on('connect-server', ({ userId, username }) => {
+  socket.on('connect-server', ({ userId }) => {
     if (!listUserOnline.includes(userId)) {
       listUserOnline.push(userId)
-      listUsers.push(userId, username)
     }
     io.emit('list-user-online', listUserOnline)
-    io.emit('room-users', listUsers)
     socket.join(userId)
-    console.log('list user online in this chat: ', listUserOnline)
+    console.log(userId)
   })
 
-  socket.on('disconnect-server', ({ userId, room }) => {
+  socket.on('disconnect-server', ({ userId }) => {
     listUserOnline = listUserOnline.filter((element) => element !== userId)
-    listUsers = listUsers.filter((element) => element.userId !== userId)
     io.emit('list-user-online', listUserOnline)
-    io.emit('room-users', listUsers)
-    // LEAVE ROOM FOR NOTIF
     socket.leave(userId)
-    // LEAVE ROOM
-    if (room) {
-      socket.leave(room)
-    }
   })
 
   socket.on('checkUserOnline', ({ userId, room }) => {
@@ -93,21 +65,25 @@ io.on('connection', (socket) => {
   socket.on('join-room', ({ room, oldRoom }) => {
     if (oldRoom) {
       socket.leave(oldRoom)
+    } else {
+      socket.join(room)
     }
-    socket.join(room)
+    console.log(room)
   })
 
   socket.on('send-message', (data) => {
-    io.to(data.room).emit('chat-message', data)
+    io.to(data.roomChat).emit('chat-message', data)
+    console.log(data)
   })
 
   socket.on('notif-message', (data) => {
     socket.broadcast.to(data.receiverId).emit('notif-message', data)
-    console.log('Is room chat is empty?', socket.room)
+    console.log(data)
   })
 
   socket.on('typing-message', (data) => {
     socket.broadcast.to(data.room).emit('typing-message', data)
+    console.log(data)
   })
 })
 

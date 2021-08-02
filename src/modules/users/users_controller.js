@@ -44,9 +44,8 @@ module.exports = {
   updateUserProfile: async (req, res) => {
     try {
       const { id } = req.params
-      const { userEmail, userName, userPhoneNumber, userBio } = req.body
+      const { userName, userPhoneNumber, userBio } = req.body
       const setData = {
-        user_email: userEmail,
         user_name: userName,
         user_phone: userPhoneNumber,
         user_bio: userBio,
