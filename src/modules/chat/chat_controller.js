@@ -4,8 +4,11 @@ const chatModel = require('../chat/chat_model')
 module.exports = {
   createChatMessage: async (req, res) => {
     try {
-      const { messageBody } = req.body
+      const { roomChat, senderId, receiverId, messageBody } = req.body
       const setData = {
+        room_chat: roomChat,
+        sender_id: senderId,
+        receiver_id: receiverId,
         message: messageBody
       }
       const result = await chatModel.sendChatMessage(setData)

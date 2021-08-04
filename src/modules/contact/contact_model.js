@@ -7,8 +7,8 @@ module.exports = {
         'INSERT INTO contact SET ?',
         setData,
         (error, result) => {
-          console.log(error)
-          console.log(result)
+          // console.log(error)
+          // console.log(result)
           if (!error) {
             const newResult = {
               id: result.insertId,
@@ -26,7 +26,7 @@ module.exports = {
   getAllContactDataById: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM contact WHERE contact_user_id=?',
+        'SELECT * FROM contact JOIN users ON contact.contact_friend_id = users.user_id WHERE contact_user_id=?',
         id,
         (error, result) => {
           // console.log(error)
@@ -58,14 +58,18 @@ module.exports = {
     })
   },
 
-  deleteOneContact: (userId, id) => {
+  deleteOneContact: (userId, friendId) => {
     return new Promise((resolve, reject) => {
       connection.query(
         'DELETE FROM contact WHERE contact_user_id=? AND contact_friend_id=?',
-        [userId, id],
+        [userId, friendId],
         (error, result) => {
           if (!error) {
-            resolve(result)
+            const newResult = {
+              contact_user_id: userId,
+              contact_friend_id: friendId
+            }
+            resolve(newResult)
           } else {
             reject(new Error(error))
           }

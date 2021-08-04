@@ -1,32 +1,22 @@
 const helper = require('../../helpers/wrapper')
-const authModel = require('../auth/auth_model')
 const contactModel = require('./contact_model')
 
 module.exports = {
   addFriend: async (req, res) => {
     try {
-      const { userId, friendId } = req.body
+      const { id } = req.params
+      const { friendId } = req.query
       const setData = {
-        contact_user_id: userId,
+        contact_user_id: id,
         contact_friend_id: friendId
       }
-
-      if (userId === friendId) {
-        return helper.response(res, 403, 'Cannot add a contact.', null)
-      }
-
-      const result = await contactModel.getOneContactData(userId, friendId)
-      if (result.length > 0) {
-        return helper.response(res, 400, 'the contact has been added.', null)
-      } else {
-        const newResult = await contactModel.addFriendContact(setData)
-        return helper.response(
-          res,
-          200,
-          'Success added a friend to your contact',
-          newResult
-        )
-      }
+      const result = await contactModel.addFriendContact(setData)
+      return helper.response(
+        res,
+        200,
+        'Success added a friend to your contact',
+        result
+      )
     } catch (err) {
       console.log(err)
       return helper.response(res, 404, 'Bad Request', null)
@@ -37,11 +27,6 @@ module.exports = {
       const { id } = req.params
       const result = await contactModel.getAllContactDataById(id)
 
-      for (const contact of result) {
-        contact.detail = await authModel.getOneUserProfileData(
-          contact.contact_friend_id
-        )
-      }
       return helper.response(
         res,
         200,
@@ -53,17 +38,37 @@ module.exports = {
     }
   },
 
-  deleteContact: async (req, res) => {
+  getAllContactByUserAndFriendId: async (req, res) => {
     try {
       const { userId, friendId } = req.query
-      const checkContactData = await contactModel.getOneContactData(
-        userId,
-        friendId
-      )
-      if (checkContactData.length === 0) {
-        return helper.response(res, 400, 'Contact is not found', null)
+
+      const result = await contactModel.getOneContactData(userId, friendId)
+      if (result.length > 0) {
+        return helper.response(
+          res,
+          200,
+          'Success get contact by user and friend id',
+          result
+        )
+      } else {
+        return helper.response(
+          res,
+          400,
+          'the data of contact is not found',
+          null
+        )
       }
-      const result = await contactModel.deleteOneContact(userId, friendId)
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 400, 'Bad Request', null)
+    }
+  },
+
+  deleteContact: async (req, res) => {
+    try {
+      const { id } = req.params
+      const { friendId } = req.query
+      const result = await contactModel.deleteOneContact(id, friendId)
       return helper.response(
         res,
         200,

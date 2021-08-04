@@ -4,9 +4,14 @@ const roomChatController = require('./room_chat_controller')
 const authMiddleware = require('../../middleware/auth')
 
 router.get(
-  '/:id',
+  '/:userId',
   authMiddleware.authentication,
   roomChatController.getAllRoomChat
+)
+router.get(
+  '/',
+  authMiddleware.authentication,
+  roomChatController.getOneRoomChat
 )
 router.post(
   '/',

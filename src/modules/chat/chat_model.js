@@ -20,7 +20,7 @@ module.exports = {
   getAllMessageByRoomId: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT * FROM chat WHERE room_chat=?',
+        'SELECT * FROM chat JOIN users ON chat.sender_id = users.user_id WHERE room_chat=?',
         id,
         (error, result) => {
           if (!error) {
