@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const helper = require('../../helpers/wrapper')
 const authModel = require('./auth_model')
 // const nodemailer = require('nodemailer')
-const fs = require('fs')
+// const fs = require('fs')
 require('dotenv').config()
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
         const setData = {
           user_email: userEmail,
           user_name: userName,
-          user_password: encryptPassword
+          user_password: encryptPassword,
         }
         const result = await authModel.registerUser(setData)
         delete result.user_password
